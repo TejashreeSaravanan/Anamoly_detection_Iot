@@ -1,0 +1,93 @@
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder as le
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.model_selection import cross_validate
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score
+df=pd.read_csv(r'C:\Users\k.Prachetha\dataset\mainSimulationAccessTraces.csv')
+ls=le()
+df['accessedNodeType']=df['accessedNodeType'].fillna(df['accessedNodeType'].mode()[0])
+df['value']=df['value'].fillna(df['value'].mode()[0])
+df=df.drop('timestamp',axis=1)
+df.sourceID=ls.fit_transform(df.sourceID)
+df.sourceAddress=ls.fit_transform(df.sourceAddress)
+df.sourceType=ls.fit_transform(df.sourceType)
+df.sourceLocation=ls.fit_transform(df.sourceLocation)
+df.destinationServiceAddress=ls.fit_transform(df.destinationServiceAddress)
+df.destinationServiceType=ls.fit_transform(df.destinationServiceType)
+df.destinationLocation=ls.fit_transform(df.destinationLocation)
+df.accessedNodeAddress=ls.fit_transform(df.accessedNodeAddress)
+df.accessedNodeType=ls.fit_transform(df.accessedNodeType)
+df.operation=ls.fit_transform(df.operation)
+df.value=ls.fit_transform(df.value)
+df.normality=ls.fit_transform(df.normality)
+features=list(df.columns[:-1])
+X_train,X_test,y_train,y_test=train_test_split(df[features],df['normality'],test_size=0.4,random_state=0)
+
+#Random Forest
+
+
+from sklearn.ensemble import RandomForestClassifier
+rf=RandomForestClassifier(n_estimators=100,n_jobs=-1)
+clf_rf=rf.fit(X_train,y_train)
+print ("Random Forest")
+print ("Accuracy= ",clf_rf.score(X_test,y_test))
+y_pred=clf_rf.predict(X_test)
+precision=precision_score(y_test,y_pred,average='weighted')
+print ("Precision= ",precision)
+recall=recall_score(y_test,y_pred,average='weighted')
+print ("Recall= ",recall)
+f1_scorer=f1_score(y_test,y_pred,average='weighted')
+print ("f1_score= ",f1_scorer)
+
+#Logistic Regression
+
+from sklearn.linear_model import LogisticRegression
+lr=LogisticRegression()
+lr.fit(X_train,y_train)
+print ("Logistic Regression")
+print ("Accuracy= ",lr.score(X_test,y_test))
+y_pred=lr.predict(X_test)
+precision=precision_score(y_test,y_pred,average='micro')
+print ("Precision= ",precision)
+recall=recall_score(y_test,y_pred,average='micro')
+print ("Recall= ",recall)
+f1_scorer=f1_score(y_test,y_pred,average='micro')
+print ("f1_score= ",f1_scorer)
+
+
+
+
+#decision tree
+
+from sklearn import tree
+dt=tree.DecisionTreeClassifier()
+dt.fit(X_train,y_train)
+print ("Decision Tree")
+print ("Accuracy= ",dt.score(X_test,y_test))
+y_pred=dt.predict(X_test)
+precision=precision_score(y_test,y_pred,average='micro')
+print ("Precision= ",precision)
+recall=recall_score(y_test,y_pred,average='micro')
+print ("Recall= ",recall)
+f1_scorer=f1_score(y_test,y_pred,average='micro')
+print ("f1_score= ",f1_scorer)
+
+
+#SVM
+
+
+from sklearn import svm
+
+svm=svm.SVC(kernel="rbf",probability=True)
+clf_svm=svm.fit(X_train,y_train)
+accuracy=clf_svm.score(X_test,y_test)
+print ("SVM")
+print ("Accuracy= ",accuracy)
+y_pred=clf_svm.predict(X_test)
+precision=precision_score(y_test,y_pred)
+print ("Precision=" ,precision)
+recall=recall_score(y_test,y_pred)
+print ("Recall=",recall)
+f1_scoresvm=f1_score(y_test,y_pred)
+print ("F1 score=" ,f1_scoresvm)
